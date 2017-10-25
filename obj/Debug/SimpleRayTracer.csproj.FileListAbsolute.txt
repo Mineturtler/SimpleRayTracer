@@ -4,3 +4,6 @@ C:\Users\Axel\Documents\GitHub\SimpleRayTracer\SimpleRayTracer\bin\Debug\SimpleR
 C:\Users\Axel\Documents\GitHub\SimpleRayTracer\SimpleRayTracer\obj\Debug\SimpleRayTracer.csprojResolveAssemblyReference.cache
 C:\Users\Axel\Documents\GitHub\SimpleRayTracer\SimpleRayTracer\obj\Debug\SimpleRayTracer.exe
 C:\Users\Axel\Documents\GitHub\SimpleRayTracer\SimpleRayTracer\obj\Debug\SimpleRayTracer.pdb
+C:\Users\Axel\Documents\GitHub\SimpleRayTracer\SimpleRayTracer\bin\Debug\GlmNet.dll
+C:\Users\Axel\Documents\GitHub\SimpleRayTracer\SimpleRayTracer\bin\Debug\GlmNet.pdb
+C:\Users\Axel\Documents\GitHub\SimpleRayTracer\SimpleRayTracer\bin\Debug\GlmNet.xml

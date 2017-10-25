@@ -11,12 +11,12 @@ namespace SimpleRayTracer
         static void Main(string[] args)
         {
             Console.WriteLine("Create Manager with 640x480");
-            ImageManager manager = ImageManager.createSceneManager(640, 480);
-
+            ImageManager iManager = ImageManager.createSceneManager(640, 480);
+            SceneManager sManager = SceneManager.createSceneManager();
 
             Console.WriteLine("Create Image");
             for(int i = 0; i < 60; i++)
-                manager.generateImage(i);
+                iManager.generateImage(i);
 
             Console.ReadKey();
         }

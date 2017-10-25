@@ -1,0 +1,6 @@
+C:\Users\Axel\Documents\GitHub\SimpleRayTracer\SimpleRayTracer\bin\Debug\SimpleRayTracer.exe.config
+C:\Users\Axel\Documents\GitHub\SimpleRayTracer\SimpleRayTracer\bin\Debug\SimpleRayTracer.exe
+C:\Users\Axel\Documents\GitHub\SimpleRayTracer\SimpleRayTracer\bin\Debug\SimpleRayTracer.pdb
+C:\Users\Axel\Documents\GitHub\SimpleRayTracer\SimpleRayTracer\obj\Debug\SimpleRayTracer.csprojResolveAssemblyReference.cache
+C:\Users\Axel\Documents\GitHub\SimpleRayTracer\SimpleRayTracer\obj\Debug\SimpleRayTracer.exe
+C:\Users\Axel\Documents\GitHub\SimpleRayTracer\SimpleRayTracer\obj\Debug\SimpleRayTracer.pdb

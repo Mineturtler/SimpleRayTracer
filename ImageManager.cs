@@ -13,15 +13,17 @@ namespace SimpleRayTracer
     {
         private const int fileNameLength = 5;
         private Color[,] imageArray; //standardfarbe: EmptyColor
+        private SceneManager sManager;
 
-        private ImageManager(int imageWidth, int imageHeigth)
+        private ImageManager(int imageWidth, int imageHeigth, SceneManager sManager)
         {
             imageArray = new Color[imageWidth, imageHeigth];
+            this.sManager = sManager;
         }
 
-        public static ImageManager createSceneManager(int imageWidth, int imageHeight)
+        public static ImageManager createImageManager(int imageWidth, int imageHeight, SceneManager sManager)
         {
-            return new ImageManager(imageWidth, imageHeight);
+            return new ImageManager(imageWidth, imageHeight, sManager);
         }
 
         //Für Testzwecke
@@ -44,7 +46,6 @@ namespace SimpleRayTracer
 
         public void generateImage(int number)
         {
-            generateAbritaryImage();
             int length = imageArray.GetLength(0);
             int height = imageArray.GetLength(1);
             using (Bitmap b = new Bitmap(length, height))
@@ -61,7 +62,7 @@ namespace SimpleRayTracer
             }
         }
 
-        public void changeColorAt(int x, int y, Color colour)
+        private void changeColorAt(int x, int y, Color colour)
         {
             if (x > imageArray.GetUpperBound(0) || x < imageArray.GetLowerBound(0) ||
                 y > imageArray.GetUpperBound(1) || y < imageArray.GetLowerBound(1))

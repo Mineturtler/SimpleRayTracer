@@ -49,6 +49,7 @@
     <Compile Include="Camera.cs" />
     <Compile Include="Objekte\ObjectType.cs" />
     <Compile Include="Objekte\Sphere.cs" />
+    <Compile Include="Pixel.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ImageManager.cs" />

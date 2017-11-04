@@ -11,14 +11,13 @@ namespace SimpleRayTracer
     class SceneManager
     {
         List<Tuple<ObjectType, mat4>> objectList = new List<Tuple<ObjectType, mat4>>();
-        private SceneManager(vec3 pos, vec3 ori)
+        private SceneManager()
         {
-            Camera c = new Camera(pos, ori);
         }
 
-        public static SceneManager createSceneManager(vec3 cameraPosition, vec3 cameraOrientation)
+        public static SceneManager createSceneManager()
         {
-            return new SceneManager(cameraPosition, cameraOrientation);
+            return new SceneManager();
         }
 
         public void addContent(ObjectType type, vec3 position, mat3 rotation, vec3 scale)
@@ -85,6 +84,11 @@ namespace SimpleRayTracer
             transformation[3, 2] = position[2];
             transformation[3, 3] = 1;
             return transformation;
+        }
+
+        public List<Tuple<ObjectType, mat4>> ObjectList
+        {
+            get { return objectList; }
         }
     }
 }

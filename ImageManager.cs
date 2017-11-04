@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
 using System.IO;
+using GlmNet;
 
 namespace SimpleRayTracer
 {
@@ -12,22 +13,84 @@ namespace SimpleRayTracer
     class ImageManager
     {
         private const int fileNameLength = 5;
-        private Color[,] imageArray; //standardfarbe: EmptyColor
-        private SceneManager sManager;
+        private const float cameraDist = 6f;
+        private const int resolutionWidth = 640;
+        private const int resolutionHeight = 480;
+        private const int planeWidth = 120;
+        private const int planeHeight = 90;
 
-        private ImageManager(int imageWidth, int imageHeigth, SceneManager sManager)
+        private static Color[,] imageArray; //standardfarbe: EmptyColor
+
+
+        public static void generateImage(SceneManager sManager, Camera mCamera, int imageNumber)
         {
-            imageArray = new Color[imageWidth, imageHeigth];
-            this.sManager = sManager;
+            imageArray = new Color[resolutionWidth, resolutionHeight];
+            Pixel[,] projectPlane = createProjectionPlane(sManager, mCamera);
+            generateImage(imageNumber);
         }
 
-        public static ImageManager createImageManager(int imageWidth, int imageHeight, SceneManager sManager)
+        private static void renderImage(SceneManager sManager, Camera mCamera, ref Pixel pixel)
         {
-            return new ImageManager(imageWidth, imageHeight, sManager);
+            foreach(vec4 point in pixel.SamplePoints)
+            {
+                Ray ray = new Ray(mCamera.Position, point - mCamera.Position);
+                float closestT = -1;
+                var actualColor = Color.Empty;
+
+                foreach (Tuple<ObjectType,mat4> obj in sManager.ObjectList)
+                {
+                    float t = obj.Item1.getIntersectionPoint(ray).w;
+                    if(t<closestT || closestT < 0)
+                    {
+                        closestT = t;
+                        
+                    }
+                
+                   
+                }
+            }
+            
+            //createProjectionPlane, Grid
+            //foreach(Pixel p : projectionGrid)
+            //generateRay durch p
+            //foreach(ObjectType type : sManager.List)
+            //intersect Ray mit type -> intersectionPoint
+            //colour = getColorAt(type.getColorAt(intersectionPoint)
+            //changeColourAt(p.Position.x, p.Position.y, colour)
+
         }
 
+        private static Pixel[,] createProjectionPlane(SceneManager sManager, Camera mCamera)
+        {
+            Pixel[,] projecPlane = new Pixel[resolutionWidth, resolutionHeight];
+
+            mat4 inverse = glm.inverse(mCamera.Transformation);
+            vec4 norm = glm.normalize(inverse * mCamera.Orientation);
+            vec4 nPos = inverse * mCamera.Position;
+            vec4 center = nPos + cameraDist * norm;
+
+            float pixelSize = (float) planeWidth/resolutionWidth;
+            
+
+            for (int i = 0; i < resolutionWidth; i++)
+            {
+                int k = i - (int) (resolutionWidth / 2);
+                for (int j = 0; j < resolutionHeight; j++)
+                {
+                    int l = j - (int) (resolutionHeight / 2);
+                    vec4 pixelPosition = new vec4(center.x + k * pixelSize, center.y + l * pixelSize, center.z, center.w);
+                    Pixel pixel = new Pixel(pixelPosition, pixelSize);
+                    renderImage(sManager, mCamera, ref pixel);
+                    projecPlane[i, j] = pixel;
+
+
+                }
+            }
+            return projecPlane;
+        }
+        
         //Für Testzwecke
-        private void generateAbritaryImage()
+        private static void generateAbritaryImage()
         {
             Random rnd = new Random();
             for(int i = 0; i < 500; i++)
@@ -44,7 +107,7 @@ namespace SimpleRayTracer
             }
         }
 
-        public void generateImage(int number)
+        private static void generateImage(int number)
         {
             int length = imageArray.GetLength(0);
             int height = imageArray.GetLength(1);
@@ -62,7 +125,7 @@ namespace SimpleRayTracer
             }
         }
 
-        private void changeColorAt(int x, int y, Color colour)
+        private static void changeColorAt(int x, int y, Color colour)
         {
             if (x > imageArray.GetUpperBound(0) || x < imageArray.GetLowerBound(0) ||
                 y > imageArray.GetUpperBound(1) || y < imageArray.GetLowerBound(1))
@@ -73,7 +136,7 @@ namespace SimpleRayTracer
             imageArray[x, y] = colour;
         }
 
-        private string getDirectory()
+        private static string getDirectory()
         {
             string currentDirectory = Directory.GetCurrentDirectory();
             string[] folderPath = currentDirectory.Split('\\');
@@ -89,7 +152,7 @@ namespace SimpleRayTracer
             return directory;
         }
 
-        private string getFileName(int number)
+        private static string getFileName(int number)
         {
             int size = number.ToString().Length;
             string fileName= "";

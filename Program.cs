@@ -14,16 +14,14 @@ namespace SimpleRayTracer
             Console.WriteLine("Create Manager with 640x480");
             vec3 cameraPosition = new vec3(0, 0, 0);
             vec3 cameraDirection = new vec3(0, 0, 1);
+            Camera mCamera = new Camera(cameraPosition, cameraDirection);
 
-            SceneManager sManager = SceneManager.createSceneManager(cameraPosition, cameraDirection);
+            SceneManager sManager = SceneManager.createSceneManager();
             loadContent(ref sManager);
-
-            ImageManager iManager = ImageManager.createImageManager(640, 480, sManager);
-
 
             Console.WriteLine("Create Image");
             for(int i = 0; i < 60; i++)
-                iManager.generateImage(i);
+                ImageManager.generateImage(sManager, mCamera, i);
 
             Console.ReadKey();
         }

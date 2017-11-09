@@ -14,19 +14,25 @@ namespace SimpleRayTracer
         private float pixelSize;
         private Color pixelColor;
         private List<vec4> samplePoints = new List<vec4>();
+        private vec4 right;
+        private vec4 down;
 
-        public Pixel(vec4 position, float size)
+        public Pixel(vec4 position, float size, vec4 right, vec4 down)
         {
             this.position = position;
             pixelSize = size;
             pixelColor = Color.White;
-            generateSamplePoints();
+            this.right = right;
+            this.down = down;
+            generateSamplePoints(right, down);
         }
 
-        private void generateSamplePoints()
+        private void generateSamplePoints(vec4 right, vec4 down)
         {
-            samplePoints.Add(new vec4(position.x + pixelSize / 2, position.y + pixelSize / 2, 
-                                      position.z, position.w));
+            //Expansion: Implement Sampling algorithm
+            vec4 samplePoint = position + pixelSize / 2 * (right + down);
+
+            samplePoints.Add(samplePoint);
         }
 
         public List<vec4> SamplePoints

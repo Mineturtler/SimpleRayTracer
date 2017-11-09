@@ -9,6 +9,37 @@ namespace SimpleRayTracer
 {
     abstract class ObjectType
     {
+        private mat4 transformationMatrix;
+        private int idNumber;
+
+        public ObjectType(int idNumber, mat4 transformationMatrix)
+        {
+            this.idNumber = idNumber;
+            this.transformationMatrix = transformationMatrix;
+        }
+
+        public ObjectType(int idNumber, vec3 position, mat3 rotation, vec3 scale)
+        {
+            this.idNumber = idNumber;
+            this.transformationMatrix = Calculation.calculateTransformationMatrix(position, rotation, scale);
+        }
+
+        public ObjectType(int idNumber, vec3 position, vec3 rotationAxis, float angle, vec3 scale)
+        {
+            this.idNumber = idNumber;
+            this.transformationMatrix = Calculation.calculateTransformationMatrix(position, Calculation.calculateRotationMatrix(rotationAxis, angle), scale);
+        }
+        public ObjectType(int idNumber, vec3 position, vec3 scale)
+        {
+            this.idNumber = idNumber;
+            this.transformationMatrix = Calculation.calculateTransformationMatrix(position, Calculation.calculateRotationMatrix(new vec3(0, 0, 0), 0), scale);
+        }
+        public ObjectType(int idNumber, vec3 position)
+        {
+            this.idNumber = idNumber;
+            this.transformationMatrix = Calculation.calculateTransformationMatrix(position, mat3.identity(), new vec3(1, 1, 1));
+        }
+
         abstract public vec4 getNormalAt(vec4 pos);
 
         public vec4 getNormalAt(vec3 pos)
@@ -36,7 +67,18 @@ namespace SimpleRayTracer
             return glm.normalize(getNormalAt(x, y, z));
         }
 
-        abstract public vec4 getIntersectionPoint(Ray ray);
+        public vec4 getIntersectionPoint(Ray ray)
+        {
+            float t = getIntersectionParameter(ray);
+            return getIntersectionPoint(ray, t);
+        }
+
+        public vec4 getIntersectionPoint(Ray ray, float t)
+        {
+            vec4 direction = ray.Direction;
+            vec4 position = ray.StartingPoint;
+            return new vec4(position.x + t * direction.x, position.y + t * direction.y, position.z + t * direction.z, 1);
+        }
 
         public vec4 getIntersectionPoint(vec4 startingPoint, vec4 direction)
         {
@@ -54,5 +96,24 @@ namespace SimpleRayTracer
         {
             return hasIntersectionPoint(new Ray(startingPoint, direction));
         }
+
+        abstract public float getIntersectionParameter(Ray ray);
+
+        public float getIntersectionParameter(vec4 startingPoint, vec4 direction)
+        {
+            return getIntersectionParameter(new Ray(startingPoint, direction));
+        }
+
+        public mat4 TransformationMatrix
+        {
+            get { return transformationMatrix; }
+            set { this.transformationMatrix = value; }
+        }
+
+        public int IdNumber
+        {
+            get { return idNumber; }
+        }
+
     }
 }

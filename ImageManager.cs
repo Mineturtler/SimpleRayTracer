@@ -21,90 +21,73 @@ namespace SimpleRayTracer
 
         private static Color[,] imageArray; //standardfarbe: EmptyColor
 
-
         public static void generateImage(SceneManager sManager, Camera mCamera, int imageNumber)
         {
             imageArray = new Color[resolutionWidth, resolutionHeight];
             Pixel[,] projectPlane = createProjectionPlane(sManager, mCamera);
+            writeImageArray(projectPlane);
             generateImage(imageNumber);
         }
 
-        private static void renderImage(SceneManager sManager, Camera mCamera, ref Pixel pixel)
+        private static void renderImage(SceneManager sManager, mat4 viewMatrix,ref Pixel pixel)
         {
+            var actualColor = Color.Empty;
             foreach(vec4 point in pixel.SamplePoints)
             {
-                Ray ray = new Ray(mCamera.Position, point - mCamera.Position);
+                Ray worldSpaceRay = new Ray(new vec4(new vec3(0,0,0),1), new vec4(new vec3(point),0)).transformRay(glm.inverse(viewMatrix));
                 float closestT = -1;
-                var actualColor = Color.Empty;
+                vec4 intersectionPoint = new vec4(0, 0, 0, 0);
+                actualColor = Color.Empty;
+                //evtl ObjectType zwischenspeichern, oder ID?
 
-                foreach (Tuple<ObjectType,mat4> obj in sManager.ObjectList)
+                foreach(ObjectType obj in sManager.ObjectList)
                 {
-                    float t = obj.Item1.getIntersectionPoint(ray).w;
-                    if(t<closestT || closestT < 0)
+                    Ray objectSpaceRay = worldSpaceRay.transformRay(glm.inverse(obj.TransformationMatrix));
+                    if (obj.hasIntersectionPoint(objectSpaceRay))
                     {
-                        closestT = t;
+                        float t = obj.getIntersectionParameter(objectSpaceRay);
                         
+                        if ( t > 0 && (t < closestT || closestT < 0 ))
+                        {
+                            closestT = t;
+                            intersectionPoint = obj.getIntersectionPoint(objectSpaceRay, t);
+                            actualColor = Color.Green; //Expansion: Colour of Object/Triangle + Shadow (Lightsource visible?)
+                        }
                     }
-                
-                   
                 }
             }
-            
-            //createProjectionPlane, Grid
-            //foreach(Pixel p : projectionGrid)
-            //generateRay durch p
-            //foreach(ObjectType type : sManager.List)
-            //intersect Ray mit type -> intersectionPoint
-            //colour = getColorAt(type.getColorAt(intersectionPoint)
-            //changeColourAt(p.Position.x, p.Position.y, colour)
-
+            pixel.PixelColor = actualColor;
         }
 
+      
         private static Pixel[,] createProjectionPlane(SceneManager sManager, Camera mCamera)
         {
             Pixel[,] projecPlane = new Pixel[resolutionWidth, resolutionHeight];
+            ViewPlane viewPlane = ViewPlane.createViewPlane(mCamera, resolutionWidth, resolutionHeight);
 
-            mat4 inverse = glm.inverse(mCamera.Transformation);
-            vec4 norm = glm.normalize(inverse * mCamera.Orientation);
-            vec4 nPos = inverse * mCamera.Position;
-            vec4 center = nPos + cameraDist * norm;
+            float pixelSize = (float) viewPlane.PlaneWidth/ resolutionWidth;
+            float pixelSize2 = (float)viewPlane.PlaneHeigth / resolutionHeight;
 
-            float pixelSize = (float) planeWidth/resolutionWidth;
-            
-
-            for (int i = 0; i < resolutionWidth; i++)
+            for(int i = 0; i < resolutionWidth; i++)
             {
-                int k = i - (int) (resolutionWidth / 2);
+                int k = i - resolutionWidth / 2;
                 for (int j = 0; j < resolutionHeight; j++)
                 {
-                    int l = j - (int) (resolutionHeight / 2);
-                    vec4 pixelPosition = new vec4(center.x + k * pixelSize, center.y + l * pixelSize, center.z, center.w);
-                    Pixel pixel = new Pixel(pixelPosition, pixelSize);
-                    renderImage(sManager, mCamera, ref pixel);
+                    int l = j - resolutionHeight / 2;
+                    vec4 pixelPosition = viewPlane.Center + k * pixelSize * viewPlane.WidthDirection - l * pixelSize * viewPlane.HeigthDirection;
+                    Pixel pixel = new Pixel(pixelPosition, pixelSize, viewPlane.WidthDirection, viewPlane.HeigthDirection);
+                    renderImage(sManager, viewPlane.ViewMatrix, ref pixel);
                     projecPlane[i, j] = pixel;
-
-
                 }
             }
             return projecPlane;
         }
-        
-        //Für Testzwecke
-        private static void generateAbritaryImage()
-        {
-            Random rnd = new Random();
-            for(int i = 0; i < 500; i++)
-            {
-                int x = rnd.Next(0, 640);
-                int y = rnd.Next(0, 480);
 
-                int r = rnd.Next(0, 255);
-                int g = rnd.Next(0, 255);
-                int b = rnd.Next(0, 255);
-                Color cl = Color.FromArgb(r,g,b);
-                
-                changeColorAt(x, y, cl);
-            }
+        private static void writeImageArray(Pixel[,] projectPlane)
+        {
+            for (int i = 0; i < resolutionWidth; i++)
+                for (int j = 0; j < resolutionHeight; j++)
+                    imageArray[i, j] = projectPlane[i, j].PixelColor;
         }
 
         private static void generateImage(int number)

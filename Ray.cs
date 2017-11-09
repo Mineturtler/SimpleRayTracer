@@ -35,6 +35,13 @@ namespace SimpleRayTracer
                                                                        endPoint[2] - startingPoint[2], 0)));
         }
 
+        public Ray transformRay(mat4 transformation)
+        {
+            vec4 start = transformation * startingPoint;
+            vec4 direc = transformation * direction;
+            return new Ray(start, glm.normalize(direc));
+        }
+
         public vec4 StartingPoint
         {
             get { return startingPoint; }

@@ -9,46 +9,15 @@ namespace SimpleRayTracer.Objekte
 {
     class Sphere : ObjectType
     {
-        
-        public Sphere()
-        {
-            
-        }
+        public Sphere(int idNumber, mat4 transformationMatrix) : base(idNumber, transformationMatrix) { }
 
-        public override vec4 getIntersectionPoint(Ray ray)
-        {
-            vec4 direction = ray.Direction;
-            vec4 position = ray.StartingPoint;
-            float a = direction.x * direction.x + direction.y * direction.y + direction.z * direction.z;
-            float b = 2 * position.x * direction.x + 2 * position.y * direction.y + 2 * position.z * direction.z;
-            float c = position.x * position.x + position.y * position.y + position.z * position.z - 1;
+        public Sphere(int idNumber, vec3 position ) : base(idNumber, position) { }
 
-            float rootValue = b * b - 4 * a * c;
+        public Sphere(int idNumber, vec3 position, vec3 scale) : base(idNumber, position, scale) { }
 
-            if (rootValue < 0)
-                return new vec4(0, 0, 0, 0);
+        public Sphere(int idNumber, vec3 position, mat3 rotation, vec3 scale ) : base(idNumber, position, rotation, scale) { }
 
-            float t1 = (-b + (float)Math.Sqrt(rootValue)) / (2 * a);
-            float t2 = (-b - (float)Math.Sqrt(rootValue)) / (2 * a);
-
-            if (t1 < 0 && t2 < 0)
-            {
-                Console.WriteLine("schnittpunkte gefunden, befinden sich hinter der Kamera");
-                return new vec4(0, 0, 0, 0);
-            }
-
-            float t;
-            if (t1 < 0)
-                t = t2;
-            else if (t2 < 0)
-                t = t1;
-            else if (t1 < t2)
-                t = t1;
-            else
-                t = t2;
-
-            return new vec4(position.x + t * direction.x, position.y + t * direction.y, position.z + t * direction.z, 1);
-        }
+        public Sphere(int idNumber, vec3 position, vec3 rotationAxis, float angle, vec3 scale) : base(idNumber, position, rotationAxis, angle, scale) { }
 
         public override bool hasIntersectionPoint(Ray ray)
         {
@@ -61,6 +30,34 @@ namespace SimpleRayTracer.Objekte
             if (rootValue < 0)
                 return false;
             return true;
+        }
+
+        public override float getIntersectionParameter(Ray ray)
+        {
+            vec4 direction = ray.Direction;
+            vec4 position = ray.StartingPoint;
+            float a = direction.x * direction.x + direction.y * direction.y + direction.z * direction.z;
+            float b = 2 * position.x * direction.x + 2 * position.y * direction.y + 2 * position.z * direction.z;
+            float c = position.x * position.x + position.y * position.y + position.z * position.z - 1;
+
+            float rootValue = b * b - 4 * a * c;
+
+            if (rootValue < 0)
+                return -1;
+
+            float t1 = (-b + (float)Math.Sqrt(rootValue)) / (2 * a);
+            float t2 = (-b - (float)Math.Sqrt(rootValue)) / (2 * a);
+
+            float t;
+            if (t1 < 0)
+                t = t2;
+            else if (t2 < 0)
+                t = t1;
+            else if (t1 < t2)
+                t = t1;
+            else
+                t = t2;
+            return t;
         }
 
         public override vec4 getNormalAt(vec4 pos)

@@ -46,6 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Calculation.cs" />
     <Compile Include="Camera.cs" />
     <Compile Include="Objekte\ObjectType.cs" />
     <Compile Include="Objekte\Sphere.cs" />
@@ -55,6 +56,7 @@
     <Compile Include="ImageManager.cs" />
     <Compile Include="Ray.cs" />
     <Compile Include="SceneManager.cs" />
+    <Compile Include="ViewPlane.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

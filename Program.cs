@@ -13,18 +13,20 @@ namespace SimpleRayTracer
         static void Main(string[] args)
         {
             Console.WriteLine("Create Manager with 640x480");
-            vec3 cameraPosition = new vec3(0, 0, -20);
+            vec3 cameraPosition = new vec3(0, 0 , -3);
             vec3 cameraOrientation = new vec3(0, 0, 0);
             Camera mCamera = new Camera(cameraPosition, cameraOrientation);
 
             SceneManager sManager = SceneManager.createSceneManager();
             loadContent(ref sManager);
 
+
             Console.WriteLine("Create Image");
             for (int i = 0; i < 1; i++)
             {
                 ImageManager.generateImage(sManager, mCamera, i);
-                mCamera.Position = new vec4(cameraPosition.x, cameraPosition.y, cameraPosition.z + i, 1);
+                vec4 _pos = new vec4(cameraPosition.x, (float) Math.Sqrt(Math.Abs((cameraPosition.z+i)* (cameraPosition.z + i) - cameraPosition.z)), cameraPosition.z + i, 1);
+                mCamera.Position = _pos;
             }
 
             Console.ReadKey();
@@ -32,9 +34,36 @@ namespace SimpleRayTracer
 
         private static void loadContent(ref SceneManager sManager)
         {
-            Objekte.Sphere sphere = new Objekte.Sphere(1, new vec3(0, 0, 0));
-            //Objekte.Sphere sphere1 = new Objekte.Sphere(2, new vec3(0, 0, 0));
+            vec3 aC = new vec3(0, 1, 0);
+            vec3 sC = new vec3(1, 1, 1);
+            float m = 5f;
+            LightProperties l1 = new LightProperties(aC,aC,sC,m);
+            Objekte.Sphere sphere = new Objekte.Sphere(1, new vec3(0, 0, 0),l1); //GRÜN
+
+            aC = new vec3(1, 0, 0);
+            LightProperties l2 = new LightProperties(aC, aC, sC, m);
+            Objekte.Sphere s1 = new Objekte.Sphere(2, new vec3(-2.3f, 0, 0), l2); //ROT
+
+            aC = new vec3(0, 0, 1);
+            LightProperties l3 = new LightProperties(aC, aC, sC, m);
+            Objekte.Sphere s2 = new Objekte.Sphere(3, new vec3(2.3f, 0, 0), l3); //BLAU 
+
+            aC = new vec3(1, 0, 1);
+            LightProperties l4 = new LightProperties(aC, aC, sC, m);
+            Objekte.Sphere s3 = new Objekte.Sphere(4, new vec3(0, 2.3f, 0), l4);
+
+            aC = new vec3(1, 1, 0);
+            LightProperties l5 = new LightProperties(aC, aC, sC, m);
+            Objekte.Sphere s4 = new Objekte.Sphere(5, new vec3(0, -2.3f, 0), l5);
+
+            Light light = new Light(new vec4(0, 0, -2.5f, 1));
+            sManager.addLightSource(light);
+
             sManager.addContent(sphere);
+            sManager.addContent(s1);
+            sManager.addContent(s2);
+            sManager.addContent(s3);
+            sManager.addContent(s4);
         }
   }
 }

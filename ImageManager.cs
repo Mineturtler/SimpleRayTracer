@@ -16,78 +16,16 @@ namespace SimpleRayTracer
         private const float cameraDist = 6f;
         private const int resolutionWidth = 640;
         private const int resolutionHeight = 480;
-        private const int planeWidth = 120;
-        private const int planeHeight = 90;
+
+        private const int _resoWidth = 640;
+        private const int _resoHeight = 480;
 
         private static Color[,] imageArray; //standardfarbe: EmptyColor
-
-        public static void generateImage(SceneManager sManager, Camera mCamera, int imageNumber)
+        
+        public static void generateImage(SceneManager _sManager, Camera _c, int imageId)
         {
-            imageArray = new Color[resolutionWidth, resolutionHeight];
-            Pixel[,] projectPlane = createProjectionPlane(sManager, mCamera);
-            writeImageArray(projectPlane);
-            generateImage(imageNumber);
-        }
-
-        private static void renderImage(SceneManager sManager, mat4 viewMatrix,ref Pixel pixel)
-        {
-            var actualColor = Color.Empty;
-            foreach(vec4 point in pixel.SamplePoints)
-            {
-                Ray worldSpaceRay = new Ray(new vec4(new vec3(0,0,0),1), new vec4(new vec3(point),0)).transformRay(glm.inverse(viewMatrix));
-                float closestT = -1;
-                vec4 intersectionPoint = new vec4(0, 0, 0, 0);
-                actualColor = Color.Empty;
-                //evtl ObjectType zwischenspeichern, oder ID?
-
-                foreach(ObjectType obj in sManager.ObjectList)
-                {
-                    Ray objectSpaceRay = worldSpaceRay.transformRay(glm.inverse(obj.TransformationMatrix));
-                    if (obj.hasIntersectionPoint(objectSpaceRay))
-                    {
-                        float t = obj.getIntersectionParameter(objectSpaceRay);
-                        
-                        if ( t > 0 && (t < closestT || closestT < 0 ))
-                        {
-                            closestT = t;
-                            intersectionPoint = obj.getIntersectionPoint(objectSpaceRay, t);
-                            actualColor = Color.Green; //Expansion: Colour of Object/Triangle + Shadow (Lightsource visible?)
-                        }
-                    }
-                }
-            }
-            pixel.PixelColor = actualColor;
-        }
-
-      
-        private static Pixel[,] createProjectionPlane(SceneManager sManager, Camera mCamera)
-        {
-            Pixel[,] projecPlane = new Pixel[resolutionWidth, resolutionHeight];
-            ViewPlane viewPlane = ViewPlane.createViewPlane(mCamera, resolutionWidth, resolutionHeight);
-
-            float pixelSize = (float) viewPlane.PlaneWidth/ resolutionWidth;
-            float pixelSize2 = (float)viewPlane.PlaneHeigth / resolutionHeight;
-
-            for(int i = 0; i < resolutionWidth; i++)
-            {
-                int k = i - resolutionWidth / 2;
-                for (int j = 0; j < resolutionHeight; j++)
-                {
-                    int l = j - resolutionHeight / 2;
-                    vec4 pixelPosition = viewPlane.Center + k * pixelSize * viewPlane.WidthDirection - l * pixelSize * viewPlane.HeigthDirection;
-                    Pixel pixel = new Pixel(pixelPosition, pixelSize, viewPlane.WidthDirection, viewPlane.HeigthDirection);
-                    renderImage(sManager, viewPlane.ViewMatrix, ref pixel);
-                    projecPlane[i, j] = pixel;
-                }
-            }
-            return projecPlane;
-        }
-
-        private static void writeImageArray(Pixel[,] projectPlane)
-        {
-            for (int i = 0; i < resolutionWidth; i++)
-                for (int j = 0; j < resolutionHeight; j++)
-                    imageArray[i, j] = projectPlane[i, j].PixelColor;
+            imageArray = RenderContext.renderScene(_sManager, _c, _resoWidth, _resoHeight);
+            generateImage(imageId);
         }
 
         private static void generateImage(int number)

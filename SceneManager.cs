@@ -10,7 +10,8 @@ namespace SimpleRayTracer
 {
     class SceneManager
     {
-        List<ObjectType> objectList = new List<ObjectType>();
+        Dictionary<int, ObjectType> objectList = new Dictionary<int, ObjectType>();
+        List<Light> lightList = new List<Light>();
         private SceneManager()
         {
         }
@@ -22,12 +23,21 @@ namespace SimpleRayTracer
 
         public void addContent(ObjectType type)
         {
-             objectList.Add(type);
+            objectList.Add(type.IdNumber,type);
         }
 
-        public List<ObjectType> ObjectList
+        public void addLightSource(Light light)
         {
-            get { return objectList; }
+            lightList.Add(light);
         }
+
+        public void addLightSource(vec4 position)
+        {
+            lightList.Add(new Light(position));
+        }
+
+        public Dictionary<int, ObjectType> ObjectList { get => objectList; }
+
+        public List<Light> LightList { get => lightList; }
     }
 }

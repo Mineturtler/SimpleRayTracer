@@ -9,47 +9,19 @@ namespace SimpleRayTracer
 {
     class Ray
     {
-        private vec4 startingPoint;
-        private vec4 direction;
+        private vec4 _start;
+        private vec4 _end;
+        private vec4 _direction;
 
-        /// <summary>
-        /// Constructs a Ray from a startingPoint and given direction
-        /// </summary>
-        /// <param name="start"></param>
-        /// <param name="direction"></param>
-        public Ray(vec4 start, vec4 direction)
+        public Ray(vec4 start, vec4 direc)
         {
-            this.startingPoint = start;
-            this.direction = direction;
-        }
-        
-        /// <summary>
-        /// Constructs a Ray from a starting Point and a given Endpoint
-        /// </summary>
-        /// <param name="startingPoint"></param>
-        /// <param name="endPoint"></param>
-        public Ray(vec3 startingPoint, vec3 endPoint)
-        {
-            new Ray(new vec4(startingPoint, 1), glm.normalize(new vec4(endPoint[0] - startingPoint[0], 
-                                                                       endPoint[1] - startingPoint[1], 
-                                                                       endPoint[2] - startingPoint[2], 0)));
+            _start = start;
+            _direction = direc;
+            _end = start + direc;
         }
 
-        public Ray transformRay(mat4 transformation)
-        {
-            vec4 start = transformation * startingPoint;
-            vec4 direc = transformation * direction;
-            return new Ray(start, glm.normalize(direc));
-        }
-
-        public vec4 StartingPoint
-        {
-            get { return startingPoint; }
-        }
-
-        public vec4 Direction
-        {
-            get { return direction; }
-        }
+        public vec4 StartingPoint { get => _start; }
+        public vec4 EndPoint { get => _end; }
+        public vec4 Direction { get => _direction; }
     }
 }

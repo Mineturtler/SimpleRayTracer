@@ -13,12 +13,13 @@ namespace SimpleRayTracer
         static void Main(string[] args)
         {
             Console.WriteLine("Create Manager with 640x480");
-            vec3 cameraPosition = new vec3(0, 0 , -3);
+            vec3 cameraPosition = new vec3(0, 0 , -5);
             vec3 cameraOrientation = new vec3(0, 0, 0);
             Camera mCamera = new Camera(cameraPosition, cameraOrientation);
 
             SceneManager sManager = SceneManager.createSceneManager();
-            loadContent(ref sManager);
+            loadSpheres(ref sManager);
+            loadTriangleObjects(ref sManager);
 
 
             Console.WriteLine("Create Image");
@@ -32,29 +33,34 @@ namespace SimpleRayTracer
             Console.ReadKey();
         }
 
-        private static void loadContent(ref SceneManager sManager)
+        private static void loadTriangleObjects(ref SceneManager sManager)
+        {
+            
+        }
+
+        private static void loadSpheres(ref SceneManager sManager)
         {
             vec3 aC = new vec3(0, 1, 0);
             vec3 sC = new vec3(1, 1, 1);
             float m = 5f;
-            LightProperties l1 = new LightProperties(aC,aC,sC,m);
+            MaterialProperty l1 = new MaterialProperty(aC,aC,sC,m);
             Objekte.Sphere sphere = new Objekte.Sphere(1, new vec3(0, 0, 0),l1); //GRÜN
 
             aC = new vec3(1, 0, 0);
-            LightProperties l2 = new LightProperties(aC, aC, sC, m);
+            MaterialProperty l2 = new MaterialProperty(aC, aC, sC, m);
             Objekte.Sphere s1 = new Objekte.Sphere(2, new vec3(-2.3f, 0, 0), l2); //ROT
 
             aC = new vec3(0, 0, 1);
-            LightProperties l3 = new LightProperties(aC, aC, sC, m);
+            MaterialProperty l3 = new MaterialProperty(aC, aC, sC, m);
             Objekte.Sphere s2 = new Objekte.Sphere(3, new vec3(2.3f, 0, 0), l3); //BLAU 
 
             aC = new vec3(1, 0, 1);
-            LightProperties l4 = new LightProperties(aC, aC, sC, m);
-            Objekte.Sphere s3 = new Objekte.Sphere(4, new vec3(0, 2.3f, 0), l4);
+            MaterialProperty l4 = new MaterialProperty(aC, aC, sC, m);
+            Objekte.Sphere s3 = new Objekte.Sphere(4, new vec3(0, 2.3f, 0), l4); //LILA
 
             aC = new vec3(1, 1, 0);
-            LightProperties l5 = new LightProperties(aC, aC, sC, m);
-            Objekte.Sphere s4 = new Objekte.Sphere(5, new vec3(0, -2.3f, 0), l5);
+            MaterialProperty l5 = new MaterialProperty(aC, aC, sC, m);
+            Objekte.Sphere s4 = new Objekte.Sphere(5, new vec3(0, -2.3f, 0), l5); //GELBS
 
             Light light = new Light(new vec4(0, 0, -2.5f, 1));
             sManager.addLightSource(light);

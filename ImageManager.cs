@@ -9,22 +9,15 @@ using GlmNet;
 
 namespace SimpleRayTracer
 {
-    
+
     class ImageManager
     {
-        private const int fileNameLength = 5;
-        private const float cameraDist = 6f;
-        private const int resolutionWidth = 640;
-        private const int resolutionHeight = 480;
-
-        private const int _resoWidth = 640;
-        private const int _resoHeight = 480;
 
         private static Color[,] imageArray; //standardfarbe: EmptyColor
-        
+
         public static void generateImage(SceneManager _sManager, Camera _c, int imageId)
         {
-            imageArray = RenderContext.renderScene(_sManager, _c, _resoWidth, _resoHeight);
+            imageArray = RenderContext.renderScene(_sManager, _c, Constants.Resolution_width, Constants.Resolution_height);
             generateImage(imageId);
         }
 
@@ -32,13 +25,14 @@ namespace SimpleRayTracer
         {
             int length = imageArray.GetLength(0);
             int height = imageArray.GetLength(1);
+
             using (Bitmap b = new Bitmap(length, height))
-            {              
-                for(int i = 0; i <length; i++)
+            {
+                for (int i = 0; i < length; i++)
                 {
-                    for(int j = 0; j < height; j++)
+                    for (int j = 0; j < height; j++)
                     {
-                        b.SetPixel(i,j, imageArray[i, j]);
+                        b.SetPixel(i, j, imageArray[i, j]);
                     }
                 }
                 string filePath = getDirectory() + "\\" + getFileName(number);
@@ -63,7 +57,7 @@ namespace SimpleRayTracer
             string[] folderPath = currentDirectory.Split('\\');
             string directory = "";
             int i = 0;
-            while(!folderPath[i].Equals("SimpleRayTracer"))
+            while (!folderPath[i].Equals("SimpleRayTracer"))
             {
                 directory += folderPath[i] + "\\";
                 i++;
@@ -76,8 +70,8 @@ namespace SimpleRayTracer
         private static string getFileName(int number)
         {
             int size = number.ToString().Length;
-            string fileName= "";
-            while(fileName.Length < fileNameLength - size)
+            string fileName = "";
+            while (fileName.Length < Constants.Filename_length - size)
             {
                 fileName += "0";
             }

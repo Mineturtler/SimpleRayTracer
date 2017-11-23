@@ -16,6 +16,14 @@ namespace SimpleRayTracer.Objekte
 
         MaterialProperty _material_property;
 
+        /// <summary>
+        /// Creates a triangle through the points P_0, P_1, P_2 with given material property and calculates the normal.
+        /// The front face is defined in mathematic positve sense.
+        /// </summary>
+        /// <param name="p0">starting point</param>
+        /// <param name="p1">second point in mathematical positive sense</param>
+        /// <param name="p2">third point in mathematical positive sense</param>
+        /// <param name="materialProperty"></param>
         public Triangle(vec4 p0, vec4 p1, vec4 p2, MaterialProperty materialProperty)
         {
             _p0 = p0;
@@ -25,13 +33,21 @@ namespace SimpleRayTracer.Objekte
             _material_property = materialProperty;
         }
 
-        public Triangle(vec4 p0, vec4 p1, vec4 p2, vec4 normal, MaterialProperty lightProps)
+        /// <summary>
+        /// Creates a triangle through P_0, P_1, P_2 with given material property and normal.
+        /// </summary>        
+        /// /// <param name="p0">starting point</param>
+        /// <param name="p1">second point in mathematical positive sense</param>
+        /// <param name="p2">third point in mathematical positive sense</param>
+        /// <param name="normal">normal of the triangle, defines the front face</param>
+        /// <param name="materialProperty"></param>
+        public Triangle(vec4 p0, vec4 p1, vec4 p2, vec4 normal, MaterialProperty materialProperty)
         {
             _p0 = p0;
             _p1 = p1;
             _p2 = p2;
             _normal = glm.normalize(normal);
-            _material_property = lightProps;
+            _material_property = materialProperty;
         }
 
 
@@ -39,9 +55,16 @@ namespace SimpleRayTracer.Objekte
         {
             vec3 _d1 = new vec3(_p1 - _p0);
             vec3 _d2 = new vec3(_p2 - _p0);
-            return glm.normalize(new vec4(glm.cross(_d1, _d2), 0));
+            return glm.normalize(new vec4(glm.cross(_d2, _d1), 0));
         }
 
+        /// <summary>
+        /// proves if a defined ray has an intersection point inside the triangle
+        /// </summary>
+        /// <param name="ray"></param>
+        /// <param name="intersecPoint">returns as the intersection point</param>
+        /// <param name="t">returns as the intersection parameter </param>
+        /// <returns></returns>
         public bool hasIntersectionPoint(Ray ray, out vec4 intersecPoint, out float t)
         {
             t = -1;
@@ -55,8 +78,8 @@ namespace SimpleRayTracer.Objekte
             float _y = glm.dot(glm.cross(new vec3(ray.Direction), _e2), _s);
             float _z = glm.dot(glm.cross(_s, _e1), new vec3(ray.Direction));
 
-            if (_y == 0 || _x == 0) // || _x == 0?
-                return false;
+            //if (_y == 0 || _x == 0) // || _x == 0?
+           //     return false;
 
             vec3 _solution = 1 / (glm.dot(glm.cross(new vec3(ray.Direction), _e2), _e1)) * new vec3(_x, _y, _z);
 
@@ -72,10 +95,10 @@ namespace SimpleRayTracer.Objekte
             return true;
         }
 
-        public vec4 P1 { get => _p0; }
-        public vec4 P2 { get => _p1; }
-        public vec4 P3 { get => _p2; }
+        public vec4 P0 { get => _p0; }
+        public vec4 P1 { get => _p1; }
+        public vec4 P2 { get => _p2; }
         public vec4 Normal { get => _normal; }
-        public MaterialProperty LightProperties { get => _material_property; }
+        public MaterialProperty MaterialProperty { get => _material_property; }
     }
 }

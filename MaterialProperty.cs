@@ -45,12 +45,12 @@ namespace SimpleRayTracer
             name = "CustomMaterial";
         }
 
-        public MaterialProperty(vec3 objColour, float specConst)
+        public MaterialProperty(vec3 objColour)
         {
             this.ambientColour = objColour;
             this.diffuseColour = objColour;
-            this.specularColour = new vec3(255, 255, 255);
-            this.specConst = specConst;
+            this.specularColour = new vec3(0,0,0);
+            this.specConst = 1;
             name = "CustomMaterial";
         }
 

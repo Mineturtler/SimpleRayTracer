@@ -46,9 +46,17 @@ namespace SimpleRayTracer
             this._object_material = objectLight;
         }
 
-        public Color getPhongAt(List<Light> lightList, vec4 direction, vec4 intersecPoint, vec4 normal, MaterialProperty props)
+        public Color getIlluminationAt(SceneManager sManager, vec4 intersectionPoint, vec4 direction, vec4 normal, MaterialProperty material)
         {
-            vec3 _color = props.AmbientColour * Light.LightAmbient;
+            if (false)
+                return Color.AliceBlue;
+            else
+                return getPhongAt(sManager.LightList, direction, intersectionPoint, normal, material);
+        }
+
+        public Color getPhongAt(List<Light> lightList, vec4 direction, vec4 intersecPoint, vec4 normal, MaterialProperty material)
+        {
+            vec3 _color = material.AmbientColour * Light.LightAmbient;
             mat4 _transMat = glm.inverse(transformationMatrix);
             vec4 _interPoint = intersecPoint;
             vec4 _normal = normal;
@@ -63,11 +71,11 @@ namespace SimpleRayTracer
                 vec4 _r = (2 * _nl * _normal) - _lDirec;
 
                 float _rv = Math.Max(0, glm.dot(_r, _vDirec));
-                float _m = props.SpecConst;
-                float _s = (float)Math.Pow(_rv, props.SpecConst);
+                float _m = material.SpecConst;
+                float _s = (float)Math.Pow(_rv, material.SpecConst);
 
-                _color += l.LightColour * (props.DiffuseColour * _nl
-                                            + props.SpecularColour * _s);
+                _color += l.LightColour * (material.DiffuseColour * _nl
+                                            + material.SpecularColour * _s);
             }
 
             return Calculation.createColour(_color);

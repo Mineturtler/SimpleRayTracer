@@ -31,7 +31,7 @@ namespace SimpleRayTracer.Objekte
 
         private void generateHitBox()
         {
-            vec4 _vector = _triangleList[0].P1;
+            vec4 _vector = _triangleList[0].P0;
             float _lowerX = _vector.x;
             float _lowerY = _vector.y;
             float _lowerZ = _vector.z;
@@ -41,13 +41,13 @@ namespace SimpleRayTracer.Objekte
 
             foreach (Triangle t in _triangleList)
             {
-                _lowerX = getSmallestValue(_lowerX, t.P1.x, t.P2.x, t.P3.x);
-                _lowerY = getSmallestValue(_lowerY, t.P1.y, t.P2.y, t.P3.y);
-                _lowerZ = getSmallestValue(_lowerZ, t.P2.z, t.P2.z, t.P3.z);
+                _lowerX = getSmallestValue(_lowerX, t.P0.x, t.P1.x, t.P2.x);
+                _lowerY = getSmallestValue(_lowerY, t.P0.y, t.P1.y, t.P2.y);
+                _lowerZ = getSmallestValue(_lowerZ, t.P1.z, t.P1.z, t.P2.z);
 
-                _upperX = -1 * getSmallestValue(-1 * _upperX, -1 * t.P1.x, -1 * t.P2.x, -1 * t.P3.x);
-                _upperY = -1 * getSmallestValue(-1 * _upperY, -1 * t.P1.y, -1 * t.P2.y, -1 * t.P3.y);
-                _upperZ = -1 * getSmallestValue(-1 * _upperZ, -1 * t.P1.z, -1 * t.P2.z, -1 * t.P3.z);
+                _upperX = -1 * getSmallestValue(-1 * _upperX, -1 * t.P0.x, -1 * t.P1.x, -1 * t.P2.x);
+                _upperY = -1 * getSmallestValue(-1 * _upperY, -1 * t.P0.y, -1 * t.P1.y, -1 * t.P2.y);
+                _upperZ = -1 * getSmallestValue(-1 * _upperZ, -1 * t.P0.z, -1 * t.P1.z, -1 * t.P2.z);
             }
 
             upperRightPoint = new vec4(_upperX, _upperY, _upperZ, 1);
@@ -62,7 +62,7 @@ namespace SimpleRayTracer.Objekte
         
         public override bool hasIntersectionPoint(Ray ray, out vec4 intersecPoint, out vec4 normal, out float closestT, out MaterialProperty materialProperty)
         {
-            closestT = Constants.Max_camera_distance; //max Distance
+            closestT = Constants.Max_camera_distance + 1; //max Distance
             intersecPoint = new vec4();
             normal = new vec4();
             materialProperty = new MaterialProperty();
@@ -72,19 +72,21 @@ namespace SimpleRayTracer.Objekte
                 foreach (Triangle triangle in _triangleList)
                 {
                     float t;
+                    vec4 _current_intersecPoint;
 
-                    if (triangle.hasIntersectionPoint(ray, out intersecPoint, out t))
+                    if (triangle.hasIntersectionPoint(ray, out _current_intersecPoint, out t))
                     {
                         if (t > 0 && t < closestT)
                         {
-                            materialProperty = triangle.LightProperties;
+                            materialProperty = triangle.MaterialProperty;
                             normal = triangle.Normal;
                             closestT = t;
+                            intersecPoint = _current_intersecPoint;
                         }
                     }
                 }
             }
-            if (closestT != Constants.Max_camera_distance) return true;
+            if (closestT <= Constants.Max_camera_distance) return true;
             return false;
         }
 

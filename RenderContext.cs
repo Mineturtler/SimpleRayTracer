@@ -7,10 +7,6 @@ namespace SimpleRayTracer
 {
     class RenderContext
     {
-        private const float m_foV = 90f;
-        private const float m_offset = 1f;
-        private const float _maxDistance = 60;
-        private static Color _backgroundColour = Color.Beige;
 
         private RenderContext() { }
 
@@ -31,7 +27,7 @@ namespace SimpleRayTracer
 
                     if (hasObjectIntersection(_sManager.ObjectList, _ray, out _intersecPoint, out _normal, out _materialProperty, out _kvp))
                     {
-                        _imageArray[i, j] = _kvp.Value.getPhongAt(_sManager.LightList, _ray.Direction, _intersecPoint, _normal, _materialProperty);
+                        _imageArray[i, j] = _kvp.Value.getIlluminationAt(_sManager, _intersecPoint, _ray.Direction, _normal, _materialProperty);
                     }
                     else
                         _imageArray[i, j] = Constants.Background_color;

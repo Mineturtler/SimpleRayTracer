@@ -90,8 +90,7 @@ namespace SimpleRayTracer.Objekte
 
             t = _solution.x;
             intersecPoint = (1 - _solution.y - _solution.z) * _p0 + _solution.y * _p1 + _solution.z * _p2;
-            vec4 test = Calculation.getPointOnRay(ray, t);
-
+ 
             return true;
         }
 

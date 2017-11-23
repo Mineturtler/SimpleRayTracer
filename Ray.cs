@@ -20,6 +20,11 @@ namespace SimpleRayTracer
             _end = start + direc;
         }
 
+        public vec4 getPointOnRay(float t)
+        {
+            return _start + t * _direction;
+        }
+
         public vec4 StartingPoint { get => _start; }
         public vec4 EndPoint { get => _end; }
         public vec4 Direction { get => _direction; }

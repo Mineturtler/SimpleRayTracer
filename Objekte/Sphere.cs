@@ -43,17 +43,45 @@ namespace SimpleRayTracer.Objekte
             float _t1 = (-_b + (float)Math.Sqrt(_root)) / (2 * _a);
             float _t2 = (-_b - (float)Math.Sqrt(_root)) / (2 * _a);
 
-            if (_t1 < 0)
+            if (_t1 < 0 && _t2 < 0)
+                t = Math.Max(_t1, _t2);
+            else if (_t1 < 0)
                 t = _t2;
             else if (_t2 < 0)
                 t = _t1;
-            else if (_t1 < _t2)
-                t = _t1;
             else
-                t = _t2;
+                t = Math.Min(_t1, _t2);
 
-            intersectionPoint = Calculation.getPointOnRay(new Ray(_pos, _dir), t);
+            intersectionPoint = new Ray(_pos, _dir).getPointOnRay(t);
             normal = getNormalisedNormalAt(intersectionPoint);
+            return true;
+        }
+
+        internal override bool hasAnyIntersectionPoint(Ray ray)
+        {
+            mat4 _trans = glm.inverse(TransformationMatrix);
+            vec4 _pos = _trans * ray.StartingPoint;
+            vec4 _end = _trans * ray.EndPoint;
+            vec4 _dir = glm.normalize(_end - _pos);
+            
+            float t = -1;
+            
+            float _a = _dir.x * _dir.x + _dir.y * _dir.y + _dir.z * _dir.z;
+            float _b = 2 * _pos.x * _dir.x + 2 * _pos.y * _dir.y + 2 * _pos.z * _dir.z;
+            float _c = _pos.x * _pos.x + _pos.y * _pos.y + _pos.z * _pos.z - 1;
+            float _root = _b * _b - 4 * _a * _c;
+
+            if (_root < 0)
+                return false;
+
+            float _t1 = (-_b + (float)Math.Sqrt(_root)) / (2 * _a);
+            float _t2 = (-_b - (float)Math.Sqrt(_root)) / (2 * _a);
+
+            if (_t1 < Constants.Epsilon)
+                return false;
+            else if (_t2 < Constants.Epsilon)
+                return false;
+
             return true;
         }
     }

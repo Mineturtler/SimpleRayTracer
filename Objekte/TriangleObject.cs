@@ -155,5 +155,22 @@ namespace SimpleRayTracer.Objekte
                 return false;
             return true;
         }
+
+        internal override bool hasAnyIntersectionPoint(Ray ray)
+        {
+            if (hitAABB(ray))
+            {
+                foreach (Triangle triangle in _triangleList)
+                {
+                    float t;
+                    vec4 _current_intersecPoint;
+
+                    if (triangle.hasIntersectionPoint(ray, out _current_intersecPoint, out t))
+                        if(t > Constants.Epsilon)
+                            return true;                    
+                }
+            }
+            return false;
+        }
     }
 }

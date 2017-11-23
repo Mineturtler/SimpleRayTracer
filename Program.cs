@@ -16,13 +16,14 @@ namespace SimpleRayTracer
         static void Main(string[] args)
         {
             Console.WriteLine("Create Manager with 640x480");
-            vec3 cameraPosition = new vec3(2,2,-2);
+            vec3 cameraPosition = new vec3(0,2,-4);
             vec3 cameraOrientation = new vec3(0, 0, 0);
             Camera mCamera = new Camera(cameraPosition, cameraOrientation);
 
             SceneManager sManager = SceneManager.createSceneManager();
             //loadSpheres(ref sManager);
             loadTriangleObjects(ref sManager);
+            loadPlane(ref sManager);
             //triangleTest(ref sManager);
             loadLights(ref sManager);
 
@@ -38,9 +39,18 @@ namespace SimpleRayTracer
             Console.ReadKey();
         }
 
+        private static void loadPlane(ref SceneManager sManager)
+        {
+            vec3 planeColour = new vec3(0.8f, 0.8f, 0.8f);
+            Plane plane = new Plane(new vec2(10,8),objID, new vec3(0,-2,0), new MaterialProperty(planeColour));
+            objID++;
+
+            sManager.addContent(plane);
+        }
+
         private static void loadLights(ref SceneManager sManager)
         {
-            Light light = new Light(new vec4(2, 2, -2.5f, 1));
+            Light light = new Light(new vec4(0,10,2, 1));
             sManager.addLightSource(light);
         }
 
@@ -56,14 +66,14 @@ namespace SimpleRayTracer
 
             vec3 aC = new vec3(0, 1, 0);
             vec3 sC = new vec3(1, 1, 1);
-            float m = 20f;
+            float m = 50f;
             MaterialProperty l1 = new MaterialProperty(aC, aC, sC, m);
             Triangle t = new Triangle(p0, p1, p2, l1);
             TriangleObject triangle = new TriangleObject(objID, t);
             objID++;
 
             sManager.addContent(cube);
-            sManager.addContent(triangle);
+            //sManager.addContent(triangle);
         }
 
         private static void loadSpheres(ref SceneManager sManager)
@@ -96,10 +106,10 @@ namespace SimpleRayTracer
             objID++;
 
             sManager.addContent(sphere);
-            sManager.addContent(s1);
-            sManager.addContent(s2);
-            sManager.addContent(s3);
-            sManager.addContent(s4);
+            //sManager.addContent(s1);
+            //sManager.addContent(s2);
+            //sManager.addContent(s3);
+            //sManager.addContent(s4);
         }
 
         private static void triangleTest(ref SceneManager sManager)

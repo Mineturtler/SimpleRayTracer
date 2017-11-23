@@ -74,9 +74,35 @@ namespace SimpleRayTracer
             return Color.FromArgb(r, g, b);
         }
 
-        public static vec4 getPointOnRay(Ray ray, float t)
+        internal static Color calculateShadowColor(SceneManager sManager, vec4 intersectionPoint, MaterialProperty material)
         {
-            return ray.StartingPoint + t * ray.Direction;
+            vec3 _currentColor = material.AmbientColour;
+
+
+
+            //return createColour(_currentColor);
+            return Color.Red;
+        }
+
+        private static bool isPointVisibleToLightSource(Dictionary<int,ObjectType> objectList,Light light, vec4 intersectionPoint)
+        {
+            Ray _ray = new Ray(intersectionPoint, light.Position - intersectionPoint);
+            foreach (var type in objectList)
+            {
+                if (type.Value.hasAnyIntersectionPoint(_ray))
+                    return true;
+            }
+            return false;
+        }
+
+        internal static bool isPointInShadow(SceneManager sManager, vec4 intersectionPoint)
+        {
+            foreach(Light l in sManager.LightList)
+            {
+                if (isPointVisibleToLightSource(sManager.ObjectList, l, intersectionPoint))
+                    return true;
+            }
+            return false;
         }
     }
 }

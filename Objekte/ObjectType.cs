@@ -48,8 +48,8 @@ namespace SimpleRayTracer
 
         public Color getIlluminationAt(SceneManager sManager, vec4 intersectionPoint, vec4 direction, vec4 normal, MaterialProperty material)
         {
-            if (false)
-                return Color.AliceBlue;
+            if (Calculation.isPointInShadow(sManager, intersectionPoint))
+                return Calculation.calculateShadowColor(sManager, intersectionPoint, material);
             else
                 return getPhongAt(sManager.LightList, direction, intersectionPoint, normal, material);
         }
@@ -80,7 +80,8 @@ namespace SimpleRayTracer
 
             return Calculation.createColour(_color);
         }
-        
+
+        internal abstract bool hasAnyIntersectionPoint(Ray ray);
         abstract public bool hasIntersectionPoint(Ray ray, out vec4 intersecPoint, out vec4 normal, out float t, out MaterialProperty materialProperty);
 
         public mat4 TransformationMatrix { get => transformationMatrix; set => transformationMatrix = value; }

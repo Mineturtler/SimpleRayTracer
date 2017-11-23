@@ -28,6 +28,8 @@ namespace SimpleRayTracer
         private const int resolution_width = 640;
         private const int resolution_height = 480;
 
+        private const double epsilon = 0.001d;
+
         private const string filepath_objectdata = "C:\\Users\\Axel\\Documents\\GitHub\\SimpleRayTracer\\ObjDateien\\";
 
         private Constants() { }
@@ -52,5 +54,6 @@ namespace SimpleRayTracer
         public static int Resolution_width => resolution_width;
         public static int Resolution_height => resolution_height;
         public static string Filepath_objectdata => filepath_objectdata;
+        public static double Epsilon => epsilon;
     }
 }

@@ -21,14 +21,14 @@ namespace SimpleRayTracer
 
         private const float field_of_view = 90f;
         private const float camera_offset = 1f;
-        private const float max_camera_distance = 60;
+        private const float max_camera_distance = 500;
         private static Color background_color = Color.Aquamarine;
 
         private const int filename_length = 5;
         private const int resolution_width = 640;
         private const int resolution_height = 480;
 
-        private const double epsilon = 0.001d;
+        private const float epsilon = 0.001f;
 
         private const string filepath_objectdata = "C:\\Users\\Axel\\Documents\\GitHub\\SimpleRayTracer\\ObjDateien\\";
 
@@ -54,6 +54,6 @@ namespace SimpleRayTracer
         public static int Resolution_width => resolution_width;
         public static int Resolution_height => resolution_height;
         public static string Filepath_objectdata => filepath_objectdata;
-        public static double Epsilon => epsilon;
+        public static float Epsilon => epsilon;
     }
 }

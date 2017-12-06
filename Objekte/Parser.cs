@@ -16,6 +16,7 @@ namespace SimpleRayTracer
         private const string MATERIAL_USAGE = "usemtl";
         private const string TRIANGLEGROUPS = "f";
         private const string COMMENTARY = "#";
+        private const int NULLPLAN = 2;
 
         private const string AMBIENTCOLOR = "Ka";
         private const string DIFFUSECOLOR = "Kd";
@@ -25,12 +26,19 @@ namespace SimpleRayTracer
 
         private Parser() { }
 
-        public static List<Triangle> getTriangleListFromFile(string filePath, string name)
+        public static List<Triangle> getTriangleListFromFile(string filePath, string objName, string mtlName, mat4 transformationMatrix)
+        {
+            string pathObject = filePath + objName + ".obj";
+            string pathMaterial = filePath + mtlName + ".mtl";
+
+            return getTriangleList(pathObject, getMaterialList(pathMaterial), transformationMatrix);
+        }
+        public static List<Triangle> getTriangleListFromFile(string filePath, string name, mat4 transformationMatrix)
         {
             string pathObject = filePath + name + ".obj";
             string pathMaterial = filePath + name + ".mtl";
 
-            return getTriangleList(pathObject, getMaterialList(pathMaterial));
+            return getTriangleList(pathObject, getMaterialList(pathMaterial), transformationMatrix);
         }
 
         private static List<MaterialProperty> getMaterialList(string filePath)
@@ -95,11 +103,12 @@ namespace SimpleRayTracer
             return line.Substring(MATERIAL_DECLARATION.Length).Trim();
         }
 
-        private static List<Triangle> getTriangleList(string filePath, List<MaterialProperty> materialList)
+        private static List<Triangle> getTriangleList(string filePath, List<MaterialProperty> materialList, mat4 transformationMatrix)
         {
             List<Triangle> _triangleList = new List<Triangle>();
             List<vec3> _vertexList = new List<vec3>();
             List<vec3> _vertexNormalList = new List<vec3>();
+            List<vec2> _vertexTextureList = new List<vec2>();
 
             using (StreamReader s = new StreamReader(filePath))
             {
@@ -120,7 +129,9 @@ namespace SimpleRayTracer
                         _vertexNormalList.Add(readVertexNormalFromLine(line, VERTEXNORMAL.Length));
                     }
                     else if (line.StartsWith(VERTEXTEXTURE))
-                        continue;
+                    {
+                        //_vertexTextureList.Add(readVertexTextureFromLine(line, VERTEXTEXTURE.Length));
+                    }
                     else if (line.StartsWith(VERTEX))
                     {
                         _vertexList.Add(readVertexFromLine(line, VERTEX.Length));
@@ -131,38 +142,58 @@ namespace SimpleRayTracer
                     }
                     else if (line.StartsWith(TRIANGLEGROUPS))
                     {
-                        _triangleList.Add(addTrianglesFromLine(line, _vertexList, _vertexNormalList, _currentProperty));
+                        _triangleList.Add(addTrianglesFromLine(line, _vertexList, _vertexNormalList, _vertexTextureList,_currentProperty, transformationMatrix));
                     }
                 }
             }
             return _triangleList;
         }
 
-        private static Triangle addTrianglesFromLine(string line, List<vec3> vertexList, List<vec3> vertexNormalList, MaterialProperty lightProperty)
+        private static Triangle addTrianglesFromLine(string line, List<vec3> vertexList, List<vec3> vertexNormalList, List<vec2> vertexTextureList,MaterialProperty materialProperty, mat4 transformationMatrix)
         {
             line = line.Substring(TRIANGLEGROUPS.Length).Trim();
             string[] split = line.Split(' ');
             if (split.Length > 3)
                 Console.WriteLine("Tetrahedar oder hoehere Ordnung.");
             if (split[0].Contains("//"))
-                return newTriangleWithNormal(split, vertexList, vertexNormalList, lightProperty);
+                return newTriangleWithNormal(split, vertexList, vertexNormalList, materialProperty, transformationMatrix);
+            if (split[0].Contains("/"))
+                return newTriangleWithTextureCoordinates(split, vertexList, vertexNormalList, vertexTextureList, materialProperty, transformationMatrix);
             else
-                return newTriangleWithoutNormal(split, vertexList, lightProperty);
+                return newTriangleWithoutNormal(split, vertexList, materialProperty, transformationMatrix);
         }
 
-        private static Triangle newTriangleWithoutNormal(string[] split, List<vec3> vertexList, MaterialProperty lightProperty)
+        private static Triangle newTriangleWithTextureCoordinates(string[] split, List<vec3> vertexList, List<vec3> vertexNormalList, List<vec2> vertexTextureList, MaterialProperty material, mat4 transformationMatrix)
+        {
+            if(split[0].Split('/').Length == NULLPLAN)
+            {
+                //TODO: TEXTUREN
+            }
+            else
+            {
+
+            }
+            throw new Exception();
+        }
+
+        private static Triangle newTriangleWithoutNormal(string[] split, List<vec3> vertexList, MaterialProperty lightProperty, mat4 transformationMatrix)
         {
             int _i1, _i2, _i3;
             string _s1 = split[0];
             string _s2 = split[1];
             string _s3 = split[2];
             if (Int32.TryParse(_s1[0].ToString(), out _i1) && Int32.TryParse(_s2[0].ToString(), out _i2) && Int32.TryParse(_s3[0].ToString(), out _i3))
-                return new Triangle(new vec4(vertexList[_i1 - 1], 1), new vec4(vertexList[_i2 - 1], 1), new vec4(vertexList[_i3 - 1], 1), lightProperty);
+            {
+                vec4 _p0 = transformationMatrix * new vec4(vertexList[_i1 - 1], 1);
+                vec4 _p1 = transformationMatrix * new vec4(vertexList[_i2 - 1], 1);
+                vec4 _p2 = transformationMatrix * new vec4(vertexList[_i3 - 1], 1);
+                return new Triangle(_p0, _p1, _p2, lightProperty);
+            }
             else
                 throw new Exception("Could not parse Triangle");
         }
 
-        private static Triangle newTriangleWithNormal(string[] split, List<vec3> vertexList, List<vec3> vertexNormalList, MaterialProperty lightProperty)
+        private static Triangle newTriangleWithNormal(string[] split, List<vec3> vertexList, List<vec3> vertexNormalList, MaterialProperty lightProperty , mat4 transformationMatrix)
         {
             int _i1, _i2, _i3, _iN;
             string _s1 = split[0];
@@ -170,7 +201,13 @@ namespace SimpleRayTracer
             string _s3 = split[2];
             string _sN = split[0].Split('/')[2];
             if (Int32.TryParse(_s1[0].ToString(), out _i1) && Int32.TryParse(_s2[0].ToString(), out _i2) && Int32.TryParse(_s3[0].ToString(), out _i3) && Int32.TryParse(_sN, out _iN))
-                return new Triangle(new vec4(vertexList[_i1 - 1], 1), new vec4(vertexList[_i2 - 1], 1), new vec4(vertexList[_i3 - 1], 1), new vec4(vertexNormalList[_iN - 1], 0), lightProperty);
+            {
+                vec4 _p0 = transformationMatrix * new vec4(vertexList[_i1 - 1], 1);
+                vec4 _p1 = transformationMatrix * new vec4(vertexList[_i2 - 1], 1);
+                vec4 _p2 = transformationMatrix * new vec4(vertexList[_i3 - 1], 1);
+                vec4 _n = transformationMatrix * new vec4(vertexNormalList[_iN - 1], 0);
+                return new Triangle(_p0, _p1, _p2, _n, lightProperty);
+            }
             else
                 throw new Exception("Could not parse Triangle");
         }
@@ -214,6 +251,19 @@ namespace SimpleRayTracer
             {
                 return new vec3(x, y, z);
             }
+            else
+                throw new Exception("Could not parse line");
+        }
+
+        private static vec2 readVertexTextureFromLine(string line, int declarationLength)
+        {
+            line = line.Substring(declarationLength).Trim();
+            string[] split = line.Split(' ');
+            float u, v;
+            split[0] = split[0].Replace('.', ',');
+            split[1] = split[1].Replace('.', ',');
+            if (float.TryParse(split[0], out u) && float.TryParse(split[1], out v))
+                return new vec2(u, v);
             else
                 throw new Exception("Could not parse line");
         }

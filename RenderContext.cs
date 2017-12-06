@@ -2,6 +2,7 @@
 using System.Drawing;
 using GlmNet;
 using System;
+using System.Threading;
 
 namespace SimpleRayTracer
 {
@@ -34,7 +35,7 @@ namespace SimpleRayTracer
                 }
             return _imageArray;
         }
-
+        
         private static bool hasObjectIntersection(Dictionary<int, ObjectType> objectList, Ray ray, out vec4 intersecPoint, out vec4 normal, out MaterialProperty materialProperty, out KeyValuePair<int, ObjectType> kvp)
         {
             float closestT = Constants.Max_camera_distance;

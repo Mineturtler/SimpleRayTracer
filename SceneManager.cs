@@ -12,9 +12,7 @@ namespace SimpleRayTracer
     {
         Dictionary<int, ObjectType> objectList = new Dictionary<int, ObjectType>();
         List<Light> lightList = new List<Light>();
-        private SceneManager()
-        {
-        }
+        private SceneManager() { }
 
         public static SceneManager createSceneManager()
         {

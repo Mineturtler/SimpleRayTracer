@@ -9,7 +9,6 @@ using GlmNet;
 
 namespace SimpleRayTracer
 {
-
     class ImageManager
     {
 

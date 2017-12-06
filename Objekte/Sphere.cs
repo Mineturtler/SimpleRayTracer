@@ -64,8 +64,6 @@ namespace SimpleRayTracer.Objekte
             vec4 _end = _trans * ray.EndPoint;
             vec4 _dir = glm.normalize(_end - _pos);
             
-            float t = -1;
-            
             float _a = _dir.x * _dir.x + _dir.y * _dir.y + _dir.z * _dir.z;
             float _b = 2 * _pos.x * _dir.x + 2 * _pos.y * _dir.y + 2 * _pos.z * _dir.z;
             float _c = _pos.x * _pos.x + _pos.y * _pos.y + _pos.z * _pos.z - 1;
@@ -80,6 +78,8 @@ namespace SimpleRayTracer.Objekte
             if (_t1 < Constants.Epsilon)
                 return false;
             else if (_t2 < Constants.Epsilon)
+                return false;
+            else if (_t1 > 1 + Constants.Epsilon && _t2 > 1 + Constants.Epsilon)
                 return false;
 
             return true;

@@ -12,12 +12,21 @@ namespace SimpleRayTracer
     {
         private Calculation() { }
 
+        /// <summary>
+        /// Calculates the rotation matrix around a given axis with a angle in degree
+        /// </summary>
+        /// <param name="rotationAxis"></param>
+        /// <param name="angle"></param>
+        /// <returns></returns>
         public static mat3 calculateRotationMatrix(vec3 rotationAxis, float angle)
         {
             mat3 m = new mat3(1);
             float s = glm.sin(glm.radians(angle));
+            //s = (Math.Abs(s) < Constants.Epsilon) ? 0 : s;
             float c = glm.cos(glm.radians(angle));
+            //c = (Math.Abs(c) < Constants.Epsilon) ? 0 : c;
             float t = 1 - glm.cos(glm.radians(angle));
+            //t = (Math.Abs(t) < Constants.Epsilon) ? 0 : t;
 
             float x = rotationAxis[0];
             float y = rotationAxis[1];
@@ -77,11 +86,8 @@ namespace SimpleRayTracer
         internal static Color calculateShadowColor(SceneManager sManager, vec4 intersectionPoint, MaterialProperty material)
         {
             vec3 _currentColor = material.AmbientColour;
-
-
-
-            //return createColour(_currentColor);
-            return Color.Red;
+            _currentColor = _currentColor * Light.LightAmbient;
+            return createColour(_currentColor);
         }
 
         private static bool isPointVisibleToLightSource(Dictionary<int,ObjectType> objectList,Light light, vec4 intersectionPoint)
@@ -103,6 +109,15 @@ namespace SimpleRayTracer
                     return true;
             }
             return false;
+        }
+
+        internal static mat3 addTwoMatrices(mat3 A, mat3 B)
+        {
+            mat3 C = new mat3(1);
+            for (int i = 0; i < 3; i++)
+                for (int j = 0; j < 3; j++)
+                   C[i, j] = A[i, j] + B[i, j];
+            return C;
         }
     }
 }

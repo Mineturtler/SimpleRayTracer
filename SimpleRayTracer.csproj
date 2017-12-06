@@ -53,7 +53,7 @@
     <Compile Include="MaterialProperty.cs" />
     <Compile Include="Objekte\ObjectType.cs" />
     <Compile Include="Objekte\Parser.cs" />
-    <Compile Include="Objekte\Plane.cs" />
+    <Compile Include="Objekte\Scenerie.cs" />
     <Compile Include="Objekte\Sphere.cs" />
     <Compile Include="Objekte\Triangle.cs" />
     <Compile Include="Objekte\TriangleObject.cs" />

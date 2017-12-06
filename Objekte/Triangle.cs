@@ -50,7 +50,6 @@ namespace SimpleRayTracer.Objekte
             _material_property = materialProperty;
         }
 
-
         private vec4 getTriangleNormal()
         {
             vec3 _d1 = new vec3(_p1 - _p0);
@@ -78,9 +77,6 @@ namespace SimpleRayTracer.Objekte
             float _y = glm.dot(glm.cross(new vec3(ray.Direction), _e2), _s);
             float _z = glm.dot(glm.cross(_s, _e1), new vec3(ray.Direction));
 
-            //if (_y == 0 || _x == 0) // || _x == 0?
-           //     return false;
-
             vec3 _solution = 1 / (glm.dot(glm.cross(new vec3(ray.Direction), _e2), _e1)) * new vec3(_x, _y, _z);
 
             if (_solution.y + _solution.z > 1)
@@ -92,6 +88,14 @@ namespace SimpleRayTracer.Objekte
             intersecPoint = (1 - _solution.y - _solution.z) * _p0 + _solution.y * _p1 + _solution.z * _p2;
  
             return true;
+        }
+
+        public void updateTriangle(mat4 transformationMatrix)
+        {
+            _p0 = transformationMatrix * _p0;
+            _p1 = transformationMatrix * _p1;
+            _p2 = transformationMatrix * _p2;
+            _normal = glm.normalize(transformationMatrix * _normal);
         }
 
         public vec4 P0 { get => _p0; }

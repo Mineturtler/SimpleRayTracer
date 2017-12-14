@@ -96,9 +96,9 @@ namespace SimpleRayTracer
             foreach (var type in objectList)
             {
                 if (type.Value.hasAnyIntersectionPoint(_ray))
-                    return true;
+                    return false;
             }
-            return false;
+            return true;
         }
 
         internal static bool isPointInShadow(SceneManager sManager, vec4 intersectionPoint)
@@ -106,9 +106,9 @@ namespace SimpleRayTracer
             foreach(Light l in sManager.LightList)
             {
                 if (isPointVisibleToLightSource(sManager.ObjectList, l, intersectionPoint))
-                    return true;
+                    return false;
             }
-            return false;
+            return true;
         }
 
         internal static mat3 addTwoMatrices(mat3 A, mat3 B)

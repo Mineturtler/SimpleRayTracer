@@ -14,48 +14,32 @@ namespace SimpleRayTracer.Objekte
         vec4 lowerLeftPoint;
 
 
-        public TriangleObject(int objID, mat4 transformationMatrix, string filePath, string objName, string mtlName) : base(objID, mat4.identity(), new MaterialProperty())
+        public TriangleObject(int objID, mat4 transformationMatrix, List<Triangle> triangleList) : base(objID, transformationMatrix, new MaterialProperty())
         {
-            _triangleList = Parser.getTriangleListFromFile(filePath, objName, TransformationMatrix);
+            copyTriangleList(triangleList);
+            updateTriangles();
             generateHitBox();
         }
 
-        public TriangleObject(int objID, vec3 position, string filePath, string objectName) : base(objID, position, new MaterialProperty())
+        /**/
+        public TriangleObject(int objID, vec3 position, List<Triangle> triangleList) : base(objID, position, new MaterialProperty())
         {
-            _triangleList = Parser.getTriangleListFromFile(filePath, objectName, TransformationMatrix);
+            copyTriangleList(triangleList);
+            updateTriangles();
             generateHitBox();
         }
 
-        public TriangleObject(int objID, vec3 position, vec3 scale, string filePath, string objectName) : base (objID, position, scale, new MaterialProperty())
+        private void copyTriangleList(List<Triangle> triangleList)
         {
-            _triangleList = Parser.getTriangleListFromFile(filePath, objectName, TransformationMatrix);
-            generateHitBox();
+            foreach (Triangle t in triangleList)
+            {
+                var _t = new Triangle(t.P0, t.P1, t.P2, t.Normal, t.MaterialProperty);
+                _triangleList.Add(_t);
+            }
+                
         }
 
-        public TriangleObject(int objID, vec3 position, vec3 rotationAxis, float angle, vec3 scale, string filePath, string objectName) : base(objID,position,rotationAxis,angle, scale, new MaterialProperty())
-        {
-            _triangleList = Parser.getTriangleListFromFile(filePath, objectName, TransformationMatrix);
-            generateHitBox();
-        }
-
-        public TriangleObject(int objID, vec3 position, vec3 rotationAxis, float angle, string filePath, string objectName) : base(objID, position, rotationAxis, angle, new vec3(1,1,1), new MaterialProperty())
-        {
-            _triangleList = Parser.getTriangleListFromFile(filePath, objectName, TransformationMatrix);
-            generateHitBox();
-        }
-
-        private TriangleObject(int objId, List<Triangle> triangles) : base(objId, mat4.identity(), new MaterialProperty())
-        {
-            _triangleList = triangles;
-            generateHitBox();
-        }
-
-        public TriangleObject(int objID, vec3 position, vec3 scale, string filePath, string objName, string mtlName) : base(objID, position, scale, new MaterialProperty())
-        {
-            _triangleList = Parser.getTriangleListFromFile(filePath, objName, mtlName,TransformationMatrix);
-            generateHitBox();
-        }
-
+       
         private void generateHitBox()
         {
             vec4 _vector = _triangleList[0].P0;
@@ -89,10 +73,11 @@ namespace SimpleRayTracer.Objekte
         
         public override bool hasIntersectionPoint(Ray ray, out vec4 intersecPoint, out vec4 normal, out float closestT, out MaterialProperty materialProperty)
         {
-            closestT = Constants.Max_camera_distance + 1; //max Distance
+            closestT = Constants.Max_camera_distance;
             intersecPoint = new vec4();
             normal = new vec4();
             materialProperty = new MaterialProperty();
+            bool foundValue = false;
 
             if (hitAABB(ray))
             {
@@ -109,12 +94,12 @@ namespace SimpleRayTracer.Objekte
                             normal = triangle.Normal;
                             closestT = t;
                             intersecPoint = _current_intersecPoint;
+                            foundValue = true;
                         }
                     }
                 }
             }
-            if (closestT <= Constants.Max_camera_distance) return true;
-            return false;
+            return foundValue;
         }
 
         private bool hitAABB(Ray ray)
@@ -158,24 +143,6 @@ namespace SimpleRayTracer.Objekte
             return false;
         }
         
-        internal override void moveObjectInDirection(vec3 direction)
-        {
-            base.moveObjectInDirection(direction);
-            updateTriangles();
-        }
-
-        internal override void scaleObject(vec3 scaling)
-        {
-            base.scaleObject(scaling);
-            updateTriangles();
-        }
-
-        internal override void rotateAroundAxisWithAngle(vec3 rotationAxis, float angle)
-        {
-            TransformationMatrix = Calculation.calculateTransformationMatrix(new vec3(0, 0, 0), Calculation.calculateRotationMatrix(rotationAxis, angle), new vec3(1, 1, 1));
-            updateTriangles();
-        }
-
         private void updateTriangles()
         {
             foreach(Triangle t in _triangleList)
@@ -185,14 +152,7 @@ namespace SimpleRayTracer.Objekte
             generateHitBox();
         }
 
-        public static TriangleObject mergeTriangleObjects(int objId, params TriangleObject[] list)
-        {
-            List<Triangle> _triangles = new List<Triangle>();
-            foreach (var _to in list)
-                foreach (var triangle in _to._triangleList)
-                    _triangles.Add(triangle);
-
-            return new TriangleObject(objId, _triangles);
-        }
+        internal vec3 UpperRightPoint { get => new vec3(upperRightPoint); }
+        internal vec3 LowerLeftPoint { get => new vec3(lowerLeftPoint); }
     }
 }

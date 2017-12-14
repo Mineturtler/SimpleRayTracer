@@ -43,6 +43,7 @@ namespace SimpleRayTracer
             normal = new vec4();
             materialProperty = new MaterialProperty();
             kvp = new KeyValuePair<int, ObjectType>();
+            bool hasFound = false;
 
             foreach (var _kvp in objectList)
             {
@@ -61,10 +62,11 @@ namespace SimpleRayTracer
                         closestT = t;
                         materialProperty = _props;
                         kvp = _kvp;
+                        hasFound = true;
                     }
                 }
             }
-            if (closestT <= Constants.Max_camera_distance && !intersecPoint.Equals(new vec4())) return true;
+            if (closestT <= Constants.Max_camera_distance && hasFound) return true;
             return false;
         }
 

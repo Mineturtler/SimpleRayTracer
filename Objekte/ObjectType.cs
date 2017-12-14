@@ -11,6 +11,7 @@ namespace SimpleRayTracer
         private int idNumber;
         private MaterialProperty _object_material;
         private vec3 originalScaling = new vec3(1,1,1);
+        private bool shadows = false;
 
         public ObjectType(int idNumber, mat4 transformationMatrix, MaterialProperty material)
         {
@@ -63,12 +64,16 @@ namespace SimpleRayTracer
         {
             vec4 _intersection = intersectionPoint + Constants.Epsilon * normal;
     
-            /**/
-            if (Calculation.isPointInShadow(sManager, _intersection))
+            if(shadows)
             {
-                return Calculation.calculateShadowColor(sManager, _intersection, material);
+                if (Calculation.isPointInShadow(sManager, _intersection))
+                {
+                    return Calculation.calculateShadowColor(sManager, _intersection, material);
+                }
+                else
+                    return getPhongAt(sManager.LightList, direction, _intersection, normal, material);
             }
-            else /**/
+            else
                 return getPhongAt(sManager.LightList, direction, _intersection, normal, material);
         }
 
@@ -99,6 +104,7 @@ namespace SimpleRayTracer
             return Calculation.createColour(_color);
         }
         
+        /*
         internal virtual void moveObjectInDirection(vec3 direction)
         {
             vec3 currentPosition = new vec3(transformationMatrix[3].x, transformationMatrix[3].y, transformationMatrix[3].z);
@@ -124,12 +130,12 @@ namespace SimpleRayTracer
             mat4 _transformation = Calculation.calculateTransformationMatrix(rotMatrix * currentPosition, rotMatrix, new vec3(1,1,1) );
             this.transformationMatrix = _transformation;
         }
+        */
 
         internal virtual void updateObject(vec3 translate, vec3 rotationAxis, float angle, vec3 scaling)
         {
-            vec3 currentPosition = new vec3(transformationMatrix[3].x, transformationMatrix[3].y, transformationMatrix[3].z);
-            mat4 _transformation = Calculation.calculateTransformationMatrix(currentPosition + translate, Calculation.calculateRotationMatrix(rotationAxis, angle), scaling);
-            this.transformationMatrix = _transformation;
+            mat4 _transformation = Calculation.calculateTransformationMatrix(translate, Calculation.calculateRotationMatrix(rotationAxis, angle), scaling);
+            this.transformationMatrix = _transformation * transformationMatrix;
         }
 
         internal abstract bool hasAnyIntersectionPoint(Ray ray);

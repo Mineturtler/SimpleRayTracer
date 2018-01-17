@@ -11,7 +11,7 @@ namespace SimpleRayTracer
     class Light
     {
         private vec4 position;
-        private vec3 lightColor = new vec3(1, 1, 1);
+        private vec3 lightColor = new vec3(0.7f, 0.7f, 0.7f);
         private static vec3 lightAmbient = new vec3(0.25f, 0.25f, 0.25f);
 
         public Light(vec4 position)

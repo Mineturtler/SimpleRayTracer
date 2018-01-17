@@ -18,15 +18,15 @@ namespace SimpleRayTracer
         /// <param name="rotationAxis"></param>
         /// <param name="angle"></param>
         /// <returns></returns>
-        public static mat3 calculateRotationMatrix(vec3 rotationAxis, float angle)
+        public static mat3 calculateRotationMatrix(vec4 rotationAxis, float angle)
         {
             mat3 m = new mat3(1);
             float s = glm.sin(glm.radians(angle));
-            //s = (Math.Abs(s) < Constants.Epsilon) ? 0 : s;
+            s = (Math.Abs(s) < Constants.Epsilon) ? 0 : s;
             float c = glm.cos(glm.radians(angle));
-            //c = (Math.Abs(c) < Constants.Epsilon) ? 0 : c;
+            c = (Math.Abs(c) < Constants.Epsilon) ? 0 : c;
             float t = 1 - glm.cos(glm.radians(angle));
-            //t = (Math.Abs(t) < Constants.Epsilon) ? 0 : t;
+            t = (Math.Abs(t) < Constants.Epsilon) ? 0 : t;
 
             float x = rotationAxis[0];
             float y = rotationAxis[1];
@@ -45,7 +45,7 @@ namespace SimpleRayTracer
             return m;
         }
 
-        public static mat4 calculateTransformationMatrix(vec3 position, mat3 rotation, vec3 scale)
+        public static mat4 calculateTransformationMatrix(vec4 position, mat3 rotation, vec3 scale)
         {
             mat4 transformation = new mat4(1);
 
@@ -90,34 +90,94 @@ namespace SimpleRayTracer
             return createColour(_currentColor);
         }
 
-        private static bool isPointVisibleToLightSource(Dictionary<int,ObjectType> objectList,Light light, vec4 intersectionPoint)
-        {
-            Ray _ray = new Ray(intersectionPoint, light.Position - intersectionPoint);
-            foreach (var type in objectList)
-            {
-                if (type.Value.hasAnyIntersectionPoint(_ray))
-                    return false;
-            }
-            return true;
-        }
-
         internal static bool isPointInShadow(SceneManager sManager, vec4 intersectionPoint)
         {
-            foreach(Light l in sManager.LightList)
+            foreach(var l in sManager.LightList)
             {
-                if (isPointVisibleToLightSource(sManager.ObjectList, l, intersectionPoint))
+                if (isVisibleToLight(sManager, l, intersectionPoint))
                     return false;
             }
             return true;
         }
 
-        internal static mat3 addTwoMatrices(mat3 A, mat3 B)
+        private static bool isVisibleToLight(SceneManager sManager, Light l, vec4 intersectionPoint)
         {
-            mat3 C = new mat3(1);
-            for (int i = 0; i < 3; i++)
-                for (int j = 0; j < 3; j++)
-                   C[i, j] = A[i, j] + B[i, j];
+            /*
+                1) Ray von der Lichtquelle zur Oberfläche
+                2) Mit AABB Gruppen schneiden
+                3) Mit den restlichen Elementen
+                4) Falls ein Objekt zwischen Punkt - Quelle -> false
+                5) Falls kein Objekt zwischen Punkt - Quelle -> true
+             */
+
+            Ray _ray = new Ray(l.Position, intersectionPoint - l.Position);
+            /**/
+            foreach(var _group in sManager.AABBList)
+            {
+                if (!_group.hitAABB(_ray)) continue;
+                foreach (var _element in _group.ElementList)
+                    if (_element.hasAnyIntersectionPoint(_ray))
+                        return false;
+            }
+
+            foreach (var _element in sManager.ObjectList)
+            {
+                if (_element.Value.PartOfGroup) continue;
+                if(_element.Value.hasAnyIntersectionPoint(_ray))
+                    return false;
+            }
+
+            return true;
+        }
+        
+        internal static mat4 multiplyTwoMatrices(mat4 A, mat4 B)
+        {
+            mat4 C = new mat4(1);
+            for(int i = 0; i < 4; i++)
+                for(int j = 0; j < 4; j++)
+                {
+                    C[j,i] = glm.dot(new vec4(A[0, i], A[1, i], A[2, i], A[3, i]), B[j]);
+                }
+
             return C;
+        }
+
+        internal static mat4 transposeMatrix(mat4 A)
+        {
+            mat4 C = new mat4(1);
+            for (int i = 0; i < 4; i++)
+                for (int j = 0; j < 4; j++)
+                    C[i, j] = A[j, i];
+            return C;
+        }
+
+        internal static vec4 getHightestCombination(params vec4[] vectors)
+        {
+            vec4 c = vectors[0];
+            foreach(var v in vectors)
+            {
+                c.x = (v.x > c.x) ? v.x : c.x;
+                c.y = (v.y > c.y) ? v.y : c.y;
+                c.z = (v.z > c.z) ? v.z : c.z;
+            }
+            return c;
+        }
+
+        internal static vec4 getLowestCombination(params vec4[] vectors)
+        {
+            vec4 c = vectors[0];
+            foreach (var v in vectors)
+            {
+                c.x = (v.x < c.x) ? v.x : c.x;
+                c.y = (v.y < c.y) ? v.y : c.y;
+                c.z = (v.z < c.z) ? v.z : c.z;
+            }
+            return c;
+        }
+
+        internal static vec4 multiplyScalarToVector(vec4 v, float lambda)
+        {
+            return new vec4(lambda * v.x, lambda * v.y, lambda * v.z, v.w);
         }
     }
 }

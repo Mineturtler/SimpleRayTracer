@@ -11,7 +11,7 @@ namespace SimpleRayTracer
 {
     class Program
     {
-        private static int noOfAnimations = 1;
+        private static int noOfAnimations = 360;
 
         static void Main(string[] args)
         {
@@ -30,34 +30,14 @@ namespace SimpleRayTracer
             Console.WriteLine("Create Image");
             for (int i = 0; i < noOfAnimations; i++)
             {
-                //Scenerie.updateScene(ref sManager, 40 + i);
                 ImageManager.generateImage(sManager, mCamera, i);
+                Scenerie.updateScene(ref sManager, i);
                 Console.WriteLine("Image {0} rendered in {1}", i, DateTime.Now - time);
             }
             Console.WriteLine("Needed time: {0}", DateTime.Now - time);
             Console.WriteLine("Done");
             Console.ReadKey();
         }
-
-
-
-        private static void updateLights(ref SceneManager sManager, float step)
-        {
-            float _begin = (float) Math.PI / 4;
-            float _end = 3 * _begin;
-            float stepSize = (_end - _begin) / (noOfAnimations);
-
-            float angle = _begin + step * stepSize;
-
-            vec4 actualPosition = sManager.LightList[0].Position;
-            actualPosition.x = - 20*glm.cos(angle);
-            actualPosition.y = 20*glm.sin(angle);
-            
-            sManager.LightList[0].Position = actualPosition;
-        }
-
-        
-
         
     }
 }

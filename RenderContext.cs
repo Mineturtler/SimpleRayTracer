@@ -3,6 +3,7 @@ using System.Drawing;
 using GlmNet;
 using System;
 using System.Threading;
+using SimpleRayTracer.Objekte;
 
 namespace SimpleRayTracer
 {
@@ -26,7 +27,7 @@ namespace SimpleRayTracer
                     MaterialProperty _materialProperty;
                     KeyValuePair<int, ObjectType> _kvp;
 
-                    if (hasObjectIntersection(_sManager.ObjectList, _ray, out _intersecPoint, out _normal, out _materialProperty, out _kvp))
+                    if (hasObjectIntersection(_sManager.ObjectList, _sManager.AABBList, _ray, out _intersecPoint, out _normal, out _materialProperty, out _kvp))
                     {
                         _imageArray[i, j] = _kvp.Value.getIlluminationAt(_sManager, _intersecPoint, _ray.Direction, _normal, _materialProperty);
                     }
@@ -36,7 +37,7 @@ namespace SimpleRayTracer
             return _imageArray;
         }
         
-        private static bool hasObjectIntersection(Dictionary<int, ObjectType> objectList, Ray ray, out vec4 intersecPoint, out vec4 normal, out MaterialProperty materialProperty, out KeyValuePair<int, ObjectType> kvp)
+        private static bool hasObjectIntersection(Dictionary<int, ObjectType> objectList, List<AABB> aabbGrpups ,Ray ray, out vec4 intersecPoint, out vec4 normal, out MaterialProperty materialProperty, out KeyValuePair<int, ObjectType> kvp)
         {
             float closestT = Constants.Max_camera_distance;
             intersecPoint = new vec4();
@@ -45,8 +46,36 @@ namespace SimpleRayTracer
             kvp = new KeyValuePair<int, ObjectType>();
             bool hasFound = false;
 
+            //Erst AABB gruppen durchsuchen
+            foreach(var aabb in aabbGrpups)
+            {
+                if (!aabb.hitAABB(ray)) continue;
+                foreach (var _obj in aabb.ElementList)
+                {
+                    vec4 _current_intersec = new vec4();
+                    vec4 _current_normal = new vec4();
+                    MaterialProperty _props = new MaterialProperty();
+                    float t;
+
+                    if (_obj.hasIntersectionPoint(ray, out _current_intersec, out _current_normal, out t, out _props))
+                    {
+                        if (t > 0 && t < closestT)
+                        {
+                            intersecPoint = _current_intersec;
+                            normal = _current_normal;
+                            closestT = t;
+                            materialProperty = _props;
+                            kvp = new KeyValuePair<int, ObjectType>(_obj.IdNumber, _obj);
+                            hasFound = true;
+                        }
+                    }
+                }
+            }
+            //Dann restliche Objekte
+
             foreach (var _kvp in objectList)
             {
+                if (_kvp.Value.PartOfGroup) continue;
                 vec4 _current_intersec = new vec4();
                 vec4 _current_normal = new vec4();
                 MaterialProperty _props = new MaterialProperty();
@@ -66,9 +95,7 @@ namespace SimpleRayTracer
                     }
                 }
             }
-            if (closestT <= Constants.Max_camera_distance && hasFound) return true;
-            return false;
+            return hasFound;
         }
-
     }
 }

@@ -28,5 +28,18 @@ namespace SimpleRayTracer
         public vec4 StartingPoint { get => _start; }
         public vec4 EndPoint { get => _end; }
         public vec4 Direction { get => _direction; }
+        public float Length { get => (float)Math.Sqrt(Direction.x * Direction.x + Direction.y * Direction.y + Direction.z * Direction.z); }
+
+        internal Ray transformRay(mat4 transformation)
+        {
+            var newStart = transformation * _start;
+            var newEnd = transformation * _end;
+            return new Ray(newStart, newEnd - newStart);
+        }
+
+        internal void normalize()
+        {
+            _direction = 1 / Length * _direction;
+        }
     }
 }

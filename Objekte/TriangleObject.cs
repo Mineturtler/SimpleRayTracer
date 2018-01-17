@@ -8,24 +8,42 @@ namespace SimpleRayTracer.Objekte
     {
         
         List<Triangle> _triangleList = new List<Triangle>();
-        List<MaterialProperty> _materialList = new List<MaterialProperty>();
 
         vec4 upperRightPoint;
         vec4 lowerLeftPoint;
+
+        /**
+         * Visual representation of the corners 
+         * in an AABB
+         * 
+         *       7------8
+         *      /|     /| 
+         *     3-+----4 |
+         *     | 5----|-6
+         *     |/     | /
+         *     1------2/
+         * 
+        **/
+
+        private vec4 corner1 = new vec4();
+        private vec4 corner2 = new vec4();
+        private vec4 corner3 = new vec4();
+        private vec4 corner4 = new vec4();
+        private vec4 corner5 = new vec4();
+        private vec4 corner6 = new vec4();
+        private vec4 corner7 = new vec4();
+        private vec4 corner8 = new vec4();
 
 
         public TriangleObject(int objID, mat4 transformationMatrix, List<Triangle> triangleList) : base(objID, transformationMatrix, new MaterialProperty())
         {
             copyTriangleList(triangleList);
-            updateTriangles();
             generateHitBox();
         }
-
-        /**/
-        public TriangleObject(int objID, vec3 position, List<Triangle> triangleList) : base(objID, position, new MaterialProperty())
+        
+        public TriangleObject(int objID, vec4 position, List<Triangle> triangleList) : base(objID, position, new MaterialProperty())
         {
             copyTriangleList(triangleList);
-            updateTriangles();
             generateHitBox();
         }
 
@@ -39,8 +57,7 @@ namespace SimpleRayTracer.Objekte
                 
         }
 
-       
-        private void generateHitBox()
+        internal void generateHitBox()
         {
             vec4 _vector = _triangleList[0].P0;
             float _lowerX = _vector.x;
@@ -63,9 +80,23 @@ namespace SimpleRayTracer.Objekte
 
             upperRightPoint = new vec4(_upperX + Constants.Epsilon, _upperY + Constants.Epsilon, _upperZ + Constants.Epsilon, 1);
             lowerLeftPoint = new vec4(_lowerX - Constants.Epsilon, _lowerY - Constants.Epsilon, _lowerZ - Constants.Epsilon, 1);
+
+            setCornerValues();
         }
 
-        private static float getSmallestValue(float x, float y, float z, float w)
+        private void setCornerValues()
+        {
+            corner1 = new vec4(lowerLeftPoint.x, lowerLeftPoint.y, upperRightPoint.z, 1);
+            corner2 = new vec4(upperRightPoint.x, lowerLeftPoint.y, upperRightPoint.z, 1);
+            corner3 = new vec4(lowerLeftPoint.x, upperRightPoint.y, upperRightPoint.z, 1);
+            corner4 = upperRightPoint;
+            corner5 = lowerLeftPoint;
+            corner6 = new vec4(upperRightPoint.x, lowerLeftPoint.y, lowerLeftPoint.z, 1);
+            corner7 = new vec4(lowerLeftPoint.x, upperRightPoint.y, lowerLeftPoint.z, 1);
+            corner8 = new vec4(upperRightPoint.x, upperRightPoint.y, lowerLeftPoint.z, 1);
+        }
+
+        private float getSmallestValue(float x, float y, float z, float w)
         {
             return Math.Min(Math.Min(x, y), Math.Min(z, w));
         }
@@ -78,15 +109,17 @@ namespace SimpleRayTracer.Objekte
             normal = new vec4();
             materialProperty = new MaterialProperty();
             bool foundValue = false;
-
-            if (hitAABB(ray))
+           
+            var _ray = ray.transformRay(Inverse);
+            
+            if (hitAABB(_ray))
             {
                 foreach (Triangle triangle in _triangleList)
                 {
                     float t;
                     vec4 _current_intersecPoint;
 
-                    if (triangle.hasIntersectionPoint(ray, out _current_intersecPoint, out t))
+                    if (triangle.hasIntersectionPoint(_ray, out _current_intersecPoint, out t))
                     {
                         if (t > 0 && t < closestT)
                         {
@@ -99,6 +132,8 @@ namespace SimpleRayTracer.Objekte
                     }
                 }
             }
+            intersecPoint = TransformationMatrix * intersecPoint;
+            normal = glm.normalize(TransformationMatrix *  normal);
             return foundValue;
         }
 
@@ -128,31 +163,36 @@ namespace SimpleRayTracer.Objekte
 
         internal override bool hasAnyIntersectionPoint(Ray ray)
         {
-            if (hitAABB(ray))
-            {
-                foreach (Triangle triangle in _triangleList)
-                {
-                    float t;
-                    vec4 _current_intersecPoint;
+            var _ray = ray.transformRay(Inverse);
+            var distance = _ray.Length - Constants.Epsilon;
+            _ray.normalize();
 
-                    if (triangle.hasIntersectionPoint(ray, out _current_intersecPoint, out t))
-                        if (t < (1+Constants.Epsilon) && t > Constants.Epsilon)
-                            return true;                    
-                }
+            if (!hitAABB(_ray)) return false;
+            foreach(Triangle _triangle in _triangleList)
+            {
+                float t;
+                vec4 intersec;
+                if (!_triangle.hasIntersectionPoint(_ray, out intersec, out t)) continue;
+                if (t > 0 && t < distance) return true;
             }
             return false;
         }
-        
-        private void updateTriangles()
+
+        public override string ToString()
         {
-            foreach(Triangle t in _triangleList)
-            {
-                t.updateTriangle(TransformationMatrix);
-            }
-            generateHitBox();
+            return "TriangleObject";
         }
 
-        internal vec3 UpperRightPoint { get => new vec3(upperRightPoint); }
-        internal vec3 LowerLeftPoint { get => new vec3(lowerLeftPoint); }
+        internal vec4 UpperRightPoint { get => upperRightPoint; }
+        internal vec4 LowerLeftPoint { get => lowerLeftPoint; }
+        internal vec4 Corner1 { get => corner1; }
+        internal vec4 Corner2 { get => corner2; }
+        internal vec4 Corner3 { get => corner3; }
+        internal vec4 Corner4 { get => corner4; }
+        internal vec4 Corner5 { get => corner5; }
+        internal vec4 Corner6 { get => corner6; }
+        internal vec4 Corner7 { get => corner7; }
+        internal vec4 Corner8 { get => corner8; }
+
     }
 }
